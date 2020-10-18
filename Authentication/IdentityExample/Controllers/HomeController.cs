@@ -54,6 +54,14 @@ namespace IdentityExample.Controllers
         {
             return View();
         }
+
+        public IActionResult EmailVerification() => View();
+
+        public async Task<IActionResult> VerifyEmail(string userId,string code)
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register(string userName, string password)
         {
@@ -65,12 +73,19 @@ namespace IdentityExample.Controllers
             var result =await _userManager.CreateAsync(user,password);
             if(result.Succeeded)
             {
-                var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                if (signInResult.Succeeded)
-                {
-                    return RedirectToAction("Index");
-                }
+                var link = Url.Action(nameof(VerifyEmail), "Home", new { userId = user.Id, code },Request.Scheme,Request.Host.ToString());
+
+                return RedirectToAction("EmailVerification");
+                //var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
+
+                //if (signInResult.Succeeded)
+                //{
+                //    return RedirectToAction("Index");
+                //}
+                //generaton of email token
+
             }
 
             return RedirectToAction("Index");
